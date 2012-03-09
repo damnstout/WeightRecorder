@@ -3,5 +3,8 @@
 
     <string name="hello">Hello World, WeightRecorderActivity!</string>
     <string name="app_name">WeightRecorder</string>
+    <string name="tvName">姓        名</string>
+    <string name="tvIniWeight">初始体重</string>
+    <string name="textview">TextView</string>
 
 </resources>
