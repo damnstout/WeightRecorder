@@ -7,13 +7,23 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 	
-	private static final String DATABASE_NAME = "wr.db";
-	private static final int DATABASE_VERSION = 1;
-	private static final String RROFILE_TABLE = "profile";
-	private static final String RECORD_TABLE = "record";
+	public static final String DATABASE_NAME = "wr.db";
+	public static final int DATABASE_VERSION = 1;
+	public static final String RROFILE_TABLE = "profile";
+	public static final String RECORD_TABLE = "record";
 	static final String TAG = "DatabaseHelper";
+	
+	static private DatabaseHelper instance;
+	
+	public static void initial(Context context) {
+		instance = new DatabaseHelper(context);
+	}
+	
+	public static DatabaseHelper getInstance() {
+		return instance;
+	}
 
-	DatabaseHelper(Context context) {
+	private DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 

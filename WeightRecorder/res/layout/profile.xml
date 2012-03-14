@@ -19,11 +19,11 @@
             android:id="@+id/editText1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" android:inputType="text">
-        
+            android:layout_weight="1"
+            android:inputType="text" >
+
             <requestFocus />
         </EditText>
-
     </LinearLayout>
 
     <LinearLayout
@@ -43,7 +43,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="numberDecimal" />
-
     </LinearLayout>
 
     <TextView
@@ -51,5 +50,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/textview" />
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="175dp" >
+
+    </ListView>
+
+    <TwoLineListItem
+        android:id="@+id/twoLineListItem1"
+        android:layout_width="168dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.15" />
 
 </LinearLayout>
