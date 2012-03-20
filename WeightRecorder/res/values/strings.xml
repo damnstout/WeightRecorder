@@ -2,9 +2,19 @@
 <resources>
 
     <string name="hello">Hello World, WeightRecorderActivity!</string>
-    <string name="app_name">WeightRecorder</string>
-    <string name="tvName">姓        名</string>
-    <string name="tvIniWeight">初始体重</string>
-    <string name="textview">TextView</string>
+    <string name="app_name">体重计</string>
+    <string name="profileLabel">个人资料设定</string>
+    <string name="profileTextviewHeight">您的身高是</string>
+    <string name="profileTextviewHeightTip">厘米</string>
+    <string name="profileTextviewBirth">您生于</string>
+    <string name="profileTextviewBirthTip">年</string>
+    <string name="profileTextviewGender">您的性别是</string>
+    <string name="profileRadioTextFemale">女</string>
+    <string name="profileRadioGenderMale">男</string>
+    <string name="profileTextviewWeightGoal">您的目标体重是</string>
+    <string name="profileTextviewWeightGoalTip">千克</string>
+    <string name="profileTextviewWeightRecommendPrefix">（健康体重范围是：</string>
+    <string name="profileTextviewWeightRecommendSuffix">千克）</string>
+    <string name="profileButtonSave">保存</string>
 
 </resources>

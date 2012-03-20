@@ -1,11 +1,10 @@
 package info.damnstout.wr.dao;
 
+import java.util.Calendar;
 
 public class Profile {
 
 	private int id;
-
-	private String name;
 
 	private int birthYear;
 
@@ -13,21 +12,70 @@ public class Profile {
 
 	private int height;
 
-	private double weight;
+	private double goal;
 	
-	public Profile() {
+	private String errorMsg;
+	
+	private static Profile _instance;
+	
+	public static Profile getSingleton() {
+		if (null == _instance) {
+			_instance = new Profile();
+		}
+		return _instance;
 	}
 
-	public Profile(int fid, String fname, int fBirthYear, int fGender,
-			int fHeight, double fWeight) {
+	public Profile() {
+		id = birthYear = gender = height = -1;
+		goal = -1;
+	}
+
+	public Profile(int fid, int fBirthYear, int fGender, int fHeight,
+			double fWeight) {
 		id = fid;
-		name = fname;
 		birthYear = fBirthYear;
 		gender = fGender;
 		height = fHeight;
-		weight = fWeight;
+		goal = fWeight;
+	}
+
+	public void copyIn(Profile other) {
+		if (!other.isValid()) {
+			return;
+		}
+		birthYear = other.birthYear;
+		gender = other.gender;
+		height = other.height;
+		goal = other.goal;
+	}
+
+	public boolean isValid() {
+		if (-1 == birthYear) {
+			errorMsg = "尚未选择出生年份";
+			return false;
+		}
+		if (-1 == gender) {
+			errorMsg = "尚未选择您的性别";
+			return false;
+		}
+		if (-1 == height) {
+			errorMsg = "尚未输入您的身高";
+			return false;
+		}
+		return true;
 	}
 	
+	public boolean isCompleted() {
+		if (!isValid()) {
+			return false;
+		}
+		if (0 > goal) {
+			errorMsg = "尚未输入您的目标体重";
+			return false;
+		}
+		return true;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -36,12 +84,8 @@ public class Profile {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	public int getAge() {
+		return Calendar.getInstance().get(Calendar.YEAR) - birthYear;
 	}
 
 	public int getBirthYear() {
@@ -49,7 +93,18 @@ public class Profile {
 	}
 
 	public void setBirthYear(int birthYear) {
-		this.birthYear = birthYear;
+		if (1900 <= birthYear
+				&& Calendar.getInstance().get(Calendar.YEAR) >= birthYear)
+			this.birthYear = birthYear;
+	}
+
+	public boolean trySetBirthYear(String sBirthYear) {
+		try {
+			setBirthYear(Integer.parseInt(sBirthYear));
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	public int getGender() {
@@ -57,7 +112,8 @@ public class Profile {
 	}
 
 	public void setGender(int gender) {
-		this.gender = gender;
+		if (0 == gender || 1 == gender)
+			this.gender = gender;
 	}
 
 	public int getHeight() {
@@ -65,15 +121,39 @@ public class Profile {
 	}
 
 	public void setHeight(int height) {
-		this.height = height;
+		if (50 <= height && 255 >= height)
+			this.height = height;
 	}
 
-	public double getWeight() {
-		return weight;
+	public boolean trySetHeight(String sHeight) {
+		try {
+			setHeight(Integer.parseInt(sHeight));
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
-	public void setWeight(double weight) {
-		this.weight = weight;
+	public double getGoal() {
+		return goal;
+	}
+
+	public void setGoal(double goal) {
+		if (5 <= goal && 500 >= goal)
+			this.goal = goal;
+	}
+
+	public boolean trySetGoal(String sGoal) {
+		try {
+			goal = Integer.parseInt(sGoal);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public String getErrorMsg() {
+		return errorMsg;
 	}
 
 }

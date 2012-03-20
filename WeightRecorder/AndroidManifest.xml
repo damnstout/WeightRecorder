@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name=".ProfileActivity">
+            android:name=".ProfileActivity"
+            android:label="@string/profileLabel" >
         </activity>
     </application>
 

@@ -16,18 +16,33 @@ import android.widget.Button;
 public class WeightRecorderActivity extends Activity {
 
 	private Profile profile;
-	private Intent profileActIntent = new Intent(WeightRecorderActivity.this,
-			ProfileActivity.class);
+	private Intent profileActIntent;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		DatabaseHelper.initial(getApplicationContext());
+		DatabaseOpenHelper.initial(getApplicationContext());
+		profileActIntent = new Intent(WeightRecorderActivity.this,
+				ProfileActivity.class);
 		setContentView(R.layout.main);
-		profile = ProfileDao.getInstance().getFirstProfile();
-		startActivity(profileActIntent);
 		addButton3Event();
+		initialProfile();
+		if (!profile.isValid()) {
+			startActivity(profileActIntent);
+		}
+	}
+	
+	/**
+	 * initiate the profile from database, if there has no data, the profile
+	 * will be invalid
+	 */
+	private void initialProfile() {
+		Profile p = ProfileDao.getInstance().getFirstProfile();
+		profile = Profile.getSingleton();
+		if (null != p) {
+			profile.copyIn(p);
+		}
 	}
 
 	public void addButton3Event() {

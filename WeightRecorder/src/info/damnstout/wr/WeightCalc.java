@@ -3,13 +3,18 @@ package info.damnstout.wr;
 public class WeightCalc {
 
 	public static class Range {
-		private double upper;
 		private double floor;
+		private double upper;
 
-		public Range(double upper, double floor) {
+		public Range(double floor, double upper) {
 			super();
-			this.upper = upper;
 			this.floor = floor;
+			this.upper = upper;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("%.1f~%.1f", floor, upper);
 		}
 
 		public double getUpper() {
@@ -34,18 +39,36 @@ public class WeightCalc {
 	// 公式中的BMI就是我们说的身体质量指数，你可以用 体重（kg）/身高2（m2） 计算得到。
 	// Age指的是实际年龄，即周岁年龄。gender为男性时，gender=1，而为女性时，gender=0。
 	public static double Bmi(double weight, double height) {
-		return weight / (height * height);
+		return weight * 10000 / (height * height);
+	}
+	
+	public static double BmiToWeight(double bmi, double height) {
+		return bmi * height * height / 10000;
 	}
 
 	public static double FatRatio(double Bmi, int age, int gender) {
-		return (1.2 * Bmi) + (0.23 * age) - (10.8 * gender) - 5.4;
+		return ((1.2 * Bmi) + (0.23 * age) - (10.8 * gender) - 5.4) / 100;
 	}
 	
-	public static Range BmiRange(int age, int gender) {
-		return new Range(18.5, 24);
+	public static double FatRatioToBmi(double fatRatio, int age, int gender) {
+		return (fatRatio * 100 + 5.4 + (10.8 * gender) - (0.23 * age) )/ 1.2;
+	}
+	
+	public static Range StandardBmiRange(int age, int gender) {
+		Range fatRatioRange = standardFatRatioRange(age, gender);
+		double floor = FatRatioToBmi(fatRatioRange.getFloor(), age, gender);
+		double upper = FatRatioToBmi(fatRatioRange.getUpper(), age, gender);
+		return new Range(floor, upper);
+	}
+	
+	public static Range StandardWeightRange(int age, int gender, int height) {
+		Range bmiRange = StandardBmiRange(age, gender);
+		double floor = BmiToWeight(bmiRange.getFloor(), height);
+		double upper = BmiToWeight(bmiRange.getUpper(), height);
+		return new Range(floor, upper);
 	}
 
-	public static Range FatRatioRange(int age, int gender) {
+	public static Range standardFatRatioRange(int age, int gender) {
 		switch (gender) {
 		case 0:
 			if (age < 18) {

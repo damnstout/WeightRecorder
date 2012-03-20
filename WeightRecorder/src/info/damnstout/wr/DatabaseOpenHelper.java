@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseOpenHelper extends SQLiteOpenHelper {
 	
 	public static final String DATABASE_NAME = "wr.db";
 	public static final int DATABASE_VERSION = 1;
@@ -13,34 +13,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public static final String RECORD_TABLE = "record";
 	static final String TAG = "DatabaseHelper";
 	
-	static private DatabaseHelper instance;
+	static private DatabaseOpenHelper instance;
 	
 	public static void initial(Context context) {
-		instance = new DatabaseHelper(context);
+		instance = new DatabaseOpenHelper(context);
 	}
 	
-	public static DatabaseHelper getInstance() {
+	public static DatabaseOpenHelper getInstance() {
 		return instance;
 	}
 
-	private DatabaseHelper(Context context) {
+	private DatabaseOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL("CREATE TABLE " + RROFILE_TABLE + " ("
-				+ " p_id INTEGER PRIMARY KEY AUTOINCREMENT," + " name TEXT,"
+				+ " p_id INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ " birth_year INTEGER," + " gender INTEGER,"
-				+ " height INTEGER," + " weight DECIMAL(3, 1)" + ");");
+				+ " height INTEGER," + " goal DECIMAL(3, 1)" + ");");
 		db.execSQL("CREATE TABLE " + RECORD_TABLE + " ("
-				+ " r_id INTEGER PRIMARY KEY AUTOINCREMENT," + " profile_id INTEGER,"
+				+ " r_id INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ " r_date DATE," + " weight DECIMAL(3, 1)" + ");");
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.w(DatabaseHelper.TAG, "Upgrading database from version " + oldVersion + " to "
+		Log.w(DatabaseOpenHelper.TAG, "Upgrading database from version " + oldVersion + " to "
 				+ newVersion + ", which will destroy all old data");
 		db.execSQL(String.format("DROP TABLE IF EXISTS %s", DATABASE_NAME,
 				RECORD_TABLE));

@@ -1,6 +1,6 @@
 package info.damnstout.wr.dao;
 
-import info.damnstout.wr.DatabaseHelper;
+import info.damnstout.wr.DatabaseOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,7 +13,7 @@ public class ProfileDao {
 
 	public static ProfileDao getInstance() {
 		if (null == instance) {
-			instance = new ProfileDao(DatabaseHelper.getInstance()
+			instance = new ProfileDao(DatabaseOpenHelper.getInstance()
 					.getWritableDatabase());
 		}
 		return instance;
@@ -25,7 +25,7 @@ public class ProfileDao {
 
 	public Profile getProfile(int profId) {
 		Cursor cur = db.rawQuery(
-				"select p_id, name, birth_year, gender, height, weight "
+				"select p_id, birth_year, gender, height, goal "
 						+ "from profile where p_id=?",
 				new String[] { Integer.toString(profId) });
 		if (1 != cur.getCount()) {
@@ -39,30 +39,53 @@ public class ProfileDao {
 
 	public Profile getFirstProfile() {
 		Cursor cur = db.rawQuery(
-				"select p_id, name, birth_year, gender, height, weight "
+				"select p_id, birth_year, gender, height, goal "
 						+ "from profile", null);
 		if (0 == cur.getCount()) {
 			return null;
 		}
 		cur.moveToFirst();
 		Profile rst = ProfileDao.buildFromCursor(cur);
-		cur.close();
+		try {
+			cur.close();
+		} catch (Exception e) {
+		} finally {
+			if (!cur.isClosed())
+				cur.close();
+			cur = null;
+		}
 		return rst;
+	}
+
+	public boolean saveOrUpdate(Profile p) {
+		if (null == getFirstProfile()) {
+			return save(p);
+		} else {
+			return update(p);
+		}
 	}
 
 	public boolean save(Profile p) {
 		ContentValues vals = new ContentValues();
-		vals.put("name", p.getName());
 		vals.put("birth_year", p.getBirthYear());
 		vals.put("gender", p.getGender());
 		vals.put("height", p.getHeight());
-		vals.put("weight", p.getWeight());
+		vals.put("goal", p.getGoal());
 		return -1 != db.insert("profile", null, vals);
 	}
 
+	public boolean update(Profile p) {
+		ContentValues vals = new ContentValues();
+		vals.put("birth_year", p.getBirthYear());
+		vals.put("gender", p.getGender());
+		vals.put("height", p.getHeight());
+		vals.put("goal", p.getGoal());
+		return 0 < db.update("profile", vals, null, null);
+	}
+
 	static Profile buildFromCursor(Cursor cur) {
-		return new Profile(cur.getInt(0), cur.getString(1), cur.getInt(2),
-				cur.getInt(3), cur.getInt(4), cur.getDouble(5));
+		return new Profile(cur.getInt(0), cur.getInt(1), cur.getInt(2),
+				cur.getInt(3), cur.getDouble(4));
 	}
 
 	public SQLiteDatabase getDb() {
