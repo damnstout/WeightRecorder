@@ -4,15 +4,125 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/mainLayoutInput"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/mainBtnDecreaseDay"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="@string/inputPreviousDay" />
+            
+            <Button
+                android:id="@+id/mainBtnDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/mainBtnDecreaseDay"
+                android:layout_toLeftOf="@+id/mainBtnIncreaseDay"
+                android:text="" />
+
+            <Button
+                android:id="@+id/mainBtnIncreaseDay"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:text="@string/inputNextDay" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/linearLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/mainBtnDecreaseWeight"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="@string/inputDecreaseWeight" />
+
+            <EditText
+                android:id="@+id/mainEditTextWeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/mainBtnDecreaseWeight"
+                android:layout_toLeftOf="@+id/mainBtnIncreaseWeight"
+                android:maxLength="5"
+                android:hint="@string/mainEditTextMainInputHint"
+                android:inputType="numberDecimal" >
+                <requestFocus />
+            </EditText>
+
+            <Button
+                android:id="@+id/mainBtnIncreaseWeight"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:text="@string/inputIncreaseWeight" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/mainBtnRecord"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/mainInputRecord" />
+
+        <ToggleButton
+            android:id="@+id/mainToggleLockInput"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:textOff="未锁定录入界面"
+            android:textOn="已锁定录入界面" />
+    </LinearLayout>
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/testbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="@string/app_name" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/mainListTitleDate"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/mainListTitleChange"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/mainListTitleWeight"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
 
 </LinearLayout>

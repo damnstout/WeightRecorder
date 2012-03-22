@@ -98,14 +98,14 @@ public class ProfileActivity extends Activity {
 			public void onClick(View v) {
 				if (!profile.isCompleted()) {
 					Toast.makeText(ProfileActivity.this, profile.getErrorMsg(),
-							100).show();
+							Constants.TOAST_DURATION).show();
 					return;
 				}
 				Profile dbProfile = Profile.getSingleton();
 				dbProfile.copyIn(profile);
 				if (!ProfileDao.getInstance().saveOrUpdate(dbProfile)) {
 					Toast.makeText(ProfileActivity.this, "±£¥Ê ß∞‹",
-							100).show();
+							Constants.TOAST_DURATION).show();
 					return;
 				}
 				ProfileActivity.this.finish();

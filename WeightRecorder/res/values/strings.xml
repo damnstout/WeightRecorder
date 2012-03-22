@@ -2,7 +2,7 @@
 <resources>
 
     <string name="hello">Hello World, WeightRecorderActivity!</string>
-    <string name="app_name">体重计</string>
+    <string name="app_name">体重记录</string>
     <string name="profileLabel">个人资料设定</string>
     <string name="profileTextviewHeight">您的身高是</string>
     <string name="profileTextviewHeightTip">厘米</string>
@@ -16,5 +16,14 @@
     <string name="profileTextviewWeightRecommendPrefix">（健康体重范围是：</string>
     <string name="profileTextviewWeightRecommendSuffix">千克）</string>
     <string name="profileButtonSave">保存</string>
+    <string name="inputPreviousDay">&lt;</string>
+    <string name="inputNextDay">&gt;</string>
+    <string name="inputDecreaseWeight">-0.1</string>
+    <string name="inputIncreaseWeight">+0.1</string>
+    <string name="mainInputRecord">记录</string>
+    <string name="mainListTitleDate">日期</string>
+    <string name="mainListTitleChange">变化</string>
+    <string name="mainListTitleWeight">体重</string>
+    <string name="mainEditTextMainInputHint">请输入体重</string>
 
 </resources>

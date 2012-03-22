@@ -2,6 +2,8 @@ package info.damnstout.wr.dao;
 
 import java.util.Calendar;
 
+import android.database.Cursor;
+
 public class Profile {
 
 	private int id;
@@ -13,11 +15,11 @@ public class Profile {
 	private int height;
 
 	private double goal;
-	
+
 	private String errorMsg;
-	
+
 	private static Profile _instance;
-	
+
 	public static Profile getSingleton() {
 		if (null == _instance) {
 			_instance = new Profile();
@@ -30,7 +32,17 @@ public class Profile {
 		goal = -1;
 	}
 
+	public Profile(Cursor cur) {
+		init(cur.getInt(0), cur.getInt(1), cur.getInt(2), cur.getInt(3),
+				cur.getDouble(4));
+	}
+
 	public Profile(int fid, int fBirthYear, int fGender, int fHeight,
+			double fWeight) {
+		init(fid, fBirthYear, fGender, fHeight, fWeight);
+	}
+
+	private void init(int fid, int fBirthYear, int fGender, int fHeight,
 			double fWeight) {
 		id = fid;
 		birthYear = fBirthYear;
@@ -64,7 +76,7 @@ public class Profile {
 		}
 		return true;
 	}
-	
+
 	public boolean isCompleted() {
 		if (!isValid()) {
 			return false;
@@ -151,7 +163,7 @@ public class Profile {
 			return false;
 		}
 	}
-	
+
 	public String getErrorMsg() {
 		return errorMsg;
 	}
