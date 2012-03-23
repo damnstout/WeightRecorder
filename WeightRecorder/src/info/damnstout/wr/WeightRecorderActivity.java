@@ -1,11 +1,14 @@
 package info.damnstout.wr;
 
 import info.damnstout.wr.dao.Profile;
+import info.damnstout.wr.dao.ProfileDao;
 import info.damnstout.wr.dao.Record;
 import info.damnstout.wr.dao.RecordDao;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -15,14 +18,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.Transformation;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -34,11 +41,19 @@ import android.widget.ToggleButton;
 public class WeightRecorderActivity extends Activity {
 
 	private static final int MENU_ITEM_INPUT = 0;
-	private static final int MENU_ITEM_PROFILE = 1;
+	private static final int MENU_ITEM_LIST = 1;
+	private static final int MENU_ITEM_STATISTIC = 2;
+	private static final int MENU_ITEM_PROFILE = 3;
 	private static final int DIALOG_DATE = 0;
 
+	private static boolean isExiting = false;
+	private static boolean hasTask = false;
+
 	private Intent profileActIntent;
+	private Intent recordListActIntent;
+
 	private Record record;
+	private Timer exitTimer;
 
 	private LinearLayout inputLayout;
 	private ToggleButton toggleLockInput;
@@ -50,14 +65,25 @@ public class WeightRecorderActivity extends Activity {
 	private Button btnWeightIncrease;
 	private Button btnRecord;
 	private DatePickerDialog datePicker;
+	private TimerTask exitTimerTask;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		DatabaseOpenHelper.initialize(getApplicationContext());
+		exitTimer = new Timer();
+		exitTimerTask = new TimerTask() {
+			@Override
+			public void run() {
+				isExiting = false;
+				hasTask = true;
+			}
+		};
 		profileActIntent = new Intent(WeightRecorderActivity.this,
 				ProfileActivity.class);
+		recordListActIntent = new Intent(WeightRecorderActivity.this,
+				RecordListActivity.class);
 		setContentView(R.layout.main);
 		findViews();
 		initialData();
@@ -84,7 +110,7 @@ public class WeightRecorderActivity extends Activity {
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
 						if (!isChecked) {
-							inputLayout.setVisibility(View.GONE);
+							setInputGone();
 						}
 					}
 				});
@@ -128,7 +154,7 @@ public class WeightRecorderActivity extends Activity {
 					recordSuccess = updateRecord();
 				}
 				if (!toggleLockInput.isChecked() && recordSuccess) {
-					inputLayout.setVisibility(View.GONE);
+					setInputGone();
 				} else if (toggleLockInput.isChecked()) {
 					toNextEmptyDay();
 				}
@@ -271,6 +297,16 @@ public class WeightRecorderActivity extends Activity {
 		if (null == record) {
 			record = new Record();
 		}
+		String curDayStr = Record.formatDate(Calendar.getInstance().getTime());
+		if (record.isValid() && curDayStr.equals(record.getDate())
+				&& !toggleLockInput.isChecked()) {
+			setInputGone();
+		} else {
+			setInputVisible();
+			record.setDate(curDayStr);
+			record.setWeight(-1);
+			record.setChange(0);
+		}
 		updateRecordUI();
 	}
 
@@ -338,6 +374,9 @@ public class WeightRecorderActivity extends Activity {
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
+		if (hasFocus) {
+			initialData();
+		}
 		super.onWindowFocusChanged(hasFocus);
 	}
 
@@ -351,8 +390,8 @@ public class WeightRecorderActivity extends Activity {
 	 * when the application started, request user set profile if it is empty
 	 */
 	private void requestInitialProfile() {
-		Profile p = Profile.getSingleton();
-		if (!p.isValid()) {
+		Profile p = ProfileDao.getInstance().getDBProfile();
+		if (null == p || !p.isValid()) {
 			startActivity(profileActIntent);
 		}
 	}
@@ -363,7 +402,11 @@ public class WeightRecorderActivity extends Activity {
 
 		menu.add(0, MENU_ITEM_INPUT, 0, "录入体重").setIcon(
 				android.R.drawable.ic_menu_add);
-		menu.add(0, MENU_ITEM_PROFILE, 0, "个人资料").setIcon(
+		menu.add(0, MENU_ITEM_LIST, 1, "列表").setIcon(
+				android.R.drawable.ic_menu_agenda);
+		// menu.add(0, MENU_ITEM_STATISTIC, 2, "统计").setIcon(
+		// android.R.drawable.ic_menu_info_details);
+		menu.add(0, MENU_ITEM_PROFILE, 3, "个人资料").setIcon(
 				android.R.drawable.ic_menu_preferences);
 
 		Intent intent = new Intent(null, getIntent().getData());
@@ -403,19 +446,42 @@ public class WeightRecorderActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_ITEM_INPUT:
-			inputLayout.setVisibility(View.VISIBLE);
+			setInputVisible();
 			toggleLockInput.setChecked(true);
 			return true;
 		case MENU_ITEM_PROFILE:
 			startActivity(profileActIntent);
 			return true;
+		case MENU_ITEM_LIST:
+			startActivity(recordListActIntent);
+			return true;
+		case MENU_ITEM_STATISTIC:
+			return true;
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	/**
-	 * 
-	 */
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (isExiting == false) {
+				isExiting = true;
+				Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+				if (!hasTask) {
+					exitTimer.schedule(exitTimerTask, 2000);
+				}
+			} else {
+				finish();
+				System.exit(0);
+			}
+			return true;
+		} else {
+			return super.onKeyDown(keyCode, event);
+		}
+	}
+
 	private void updateRecordUI() {
 		updateDateButtonText();
 		updateRecordWithDate();
@@ -429,11 +495,62 @@ public class WeightRecorderActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				if (View.VISIBLE == inputLayout.getVisibility()) {
-					inputLayout.setVisibility(View.GONE);
+					setInputGone();
 				} else {
-					inputLayout.setVisibility(View.VISIBLE);
+					setInputVisible();
 				}
 			}
 		});
+	}
+
+	private void setInputGone() {
+//		inputLayout.startAnimation(new MyScaler(1.0f, 1.0f, 1.0f, 0.0f, 500, inputLayout, true));
+		inputLayout.setVisibility(View.GONE);
+	}
+
+	private void setInputVisible() {
+		inputLayout.setVisibility(View.VISIBLE);
+	}
+
+	public class MyScaler extends ScaleAnimation {
+
+		private View mView;
+
+		private LayoutParams mLayoutParams;
+
+		private int mMarginBottomFromY, mMarginBottomToY;
+
+		private boolean mVanishAfter = false;
+
+		public MyScaler(float fromX, float toX, float fromY, float toY,
+				int duration, View view, boolean vanishAfter) {
+			super(fromX, toX, fromY, toY);
+			setDuration(duration);
+			mView = view;
+			mVanishAfter = vanishAfter;
+			mLayoutParams = (LayoutParams) view.getLayoutParams();
+			int height = mView.getHeight();
+			mMarginBottomFromY = (int) (height * fromY)
+					+ mLayoutParams.bottomMargin - height;
+			mMarginBottomToY = (int) (0 - ((height * toY) + mLayoutParams.bottomMargin))
+					- height;
+		}
+
+		@Override
+		protected void applyTransformation(float interpolatedTime,
+				Transformation t) {
+			super.applyTransformation(interpolatedTime, t);
+			if (interpolatedTime < 1.0f) {
+				int newMarginBottom = mMarginBottomFromY
+						+ (int) ((mMarginBottomToY - mMarginBottomFromY) * interpolatedTime);
+				mLayoutParams.setMargins(mLayoutParams.leftMargin,
+						mLayoutParams.topMargin, mLayoutParams.rightMargin,
+						newMarginBottom);
+				mView.getParent().requestLayout();
+			} else if (mVanishAfter) {
+				mView.setVisibility(View.GONE);
+			}
+		}
+
 	}
 }

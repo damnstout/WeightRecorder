@@ -56,8 +56,9 @@ public class ProfileActivity extends Activity {
 	}
 
 	private void initialProfileFromDB() {
-		Profile dbProfile = Profile.getSingleton();
-		if (dbProfile.isValid()) {
+		Profile dbProfile = ProfileDao.getInstance().getDBProfile();
+		if (null != dbProfile && dbProfile.isValid()) {
+			Profile.getSingleton().copyIn(dbProfile);
 			profile.copyIn(dbProfile);
 		} else {
 			profile.setGender(0);

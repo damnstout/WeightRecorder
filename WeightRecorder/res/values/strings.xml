@@ -2,8 +2,9 @@
 <resources>
 
     <string name="hello">Hello World, WeightRecorderActivity!</string>
-    <string name="app_name">体重记录</string>
+    <string name="app_name">体重计</string>
     <string name="profileLabel">个人资料设定</string>
+    <string name="recordListLabel">体重记录列表</string>
     <string name="profileTextviewHeight">您的身高是</string>
     <string name="profileTextviewHeightTip">厘米</string>
     <string name="profileTextviewBirth">您生于</string>

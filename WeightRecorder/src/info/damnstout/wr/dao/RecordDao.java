@@ -65,15 +65,19 @@ public class RecordDao {
 		return 0 < writeDB.update("record", vals, "r_date=?",
 				new String[] { r.getDate() });
 	}
+	
+	public boolean delete(String date) {
+		return 0 < writeDB.delete("record", "r_date=?", new String[] {date});
+	}
 
 	public List<Record> getRecords() {
 		List<Record> rst = new ArrayList<Record>();
 		Cursor cur = readDB.rawQuery("select r_date, weight from record "
 				+ "order by r_date desc", null);
-		cur.moveToFirst();
-		while (cur.isAfterLast()) {
+		boolean hasData = cur.moveToFirst();
+		while (hasData) {
 			rst.add(new Record(cur));
-			cur.moveToNext();
+			hasData = cur.moveToNext();
 		}
 		try {
 			cur.close();
