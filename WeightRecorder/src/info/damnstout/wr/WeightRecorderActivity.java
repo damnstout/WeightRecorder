@@ -10,13 +10,21 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.achartengine.GraphicalView;
+
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.Editable;
+import android.text.Selection;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -44,16 +52,29 @@ public class WeightRecorderActivity extends Activity {
 	private static final int MENU_ITEM_LIST = 1;
 	private static final int MENU_ITEM_STATISTIC = 2;
 	private static final int MENU_ITEM_PROFILE = 3;
+	private static final int MENU_ITEM_BAKUP = 4;
 	private static final int DIALOG_DATE = 0;
 
 	private static boolean isExiting = false;
 	private static boolean hasTask = false;
+	private static boolean chartDataChanged = false;
 
 	private Intent profileActIntent;
 	private Intent recordListActIntent;
 
 	private Record record;
 	private Timer exitTimer;
+	private TimerTask exitTimerTask;
+	private GraphicalView mChartView;
+	private WeightCharter weightCharter = new WeightCharter();
+	private ProgressDialog progressDialog;
+	private Handler progressHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			progressDialog.dismiss();
+		}
+	};
 
 	private LinearLayout inputLayout;
 	private ToggleButton toggleLockInput;
@@ -65,7 +86,6 @@ public class WeightRecorderActivity extends Activity {
 	private Button btnWeightIncrease;
 	private Button btnRecord;
 	private DatePickerDialog datePicker;
-	private TimerTask exitTimerTask;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -92,7 +112,6 @@ public class WeightRecorderActivity extends Activity {
 	}
 
 	private void addEvents() {
-		addButton2Event();
 		addButtonDateEvent();
 		addButtonDateDecrease();
 		addButtonDateIncrease();
@@ -159,6 +178,15 @@ public class WeightRecorderActivity extends Activity {
 					toNextEmptyDay();
 				}
 				etWeight.requestFocus();
+				if (recordSuccess) {
+					LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);
+					layout.removeViewAt(layout.getChildCount() - 1);
+					weightCharter.emptyView();
+					mChartView = weightCharter
+							.getView(WeightRecorderActivity.this);
+					layout.addView(mChartView, new LayoutParams(
+							LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+				}
 			}
 
 			private void toNextEmptyDay() {
@@ -322,7 +350,10 @@ public class WeightRecorderActivity extends Activity {
 
 	private void updateWeightEditText() {
 		if (0 < record.getWeight()) {
+			etWeight.setTextColor(Color.BLACK);
 			etWeight.setText(record.getWeightStr());
+			Editable etitable = etWeight.getText();
+			Selection.setSelection(etitable, etitable.length());
 			return;
 		}
 		etWeight.setText("");
@@ -331,8 +362,12 @@ public class WeightRecorderActivity extends Activity {
 		if (null == previousRecord) {
 			etWeight.setHint(R.string.mainEditTextMainInputHint);
 		} else {
+			etWeight.setTextColor(Color.rgb(61, 170, 247));
 			etWeight.setHint(previousRecord.getWeightStr());
+			etWeight.setText(previousRecord.getWeightStr());
 			record.setWeight(previousRecord.getWeight());
+			Editable etitable = etWeight.getText();
+			Selection.setSelection(etitable, etitable.length());
 		}
 	}
 
@@ -374,9 +409,9 @@ public class WeightRecorderActivity extends Activity {
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
-		if (hasFocus) {
-			initialData();
-		}
+		// if (hasFocus) {
+		// initialData();
+		// }
 		super.onWindowFocusChanged(hasFocus);
 	}
 
@@ -408,6 +443,8 @@ public class WeightRecorderActivity extends Activity {
 		// android.R.drawable.ic_menu_info_details);
 		menu.add(0, MENU_ITEM_PROFILE, 3, "个人资料").setIcon(
 				android.R.drawable.ic_menu_preferences);
+		menu.add(0, MENU_ITEM_BAKUP, 4, "备份").setIcon(
+				android.R.drawable.ic_menu_save);
 
 		Intent intent = new Intent(null, getIntent().getData());
 		intent.addCategory(Intent.CATEGORY_ALTERNATIVE);
@@ -457,12 +494,43 @@ public class WeightRecorderActivity extends Activity {
 			return true;
 		case MENU_ITEM_STATISTIC:
 			return true;
+		case MENU_ITEM_BAKUP:
+			backupData();
+			return true;
 		default:
 			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
+	/**
+	 * backup data to server
+	 */
+	private void backupData() {
+		progressDialog = ProgressDialog.show(this, "备份数据", "正在备份数据...");
+		new Thread() {
+			@Override
+			public void run() {
+				Looper.prepare();
+				if (Backuper.getInstance().backupToServer(
+						WeightRecorderActivity.this)) {
+					Toast.makeText(WeightRecorderActivity.this, "备份成功",
+							Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(WeightRecorderActivity.this,
+							Backuper.getInstance().getErrorMessage(),
+							Toast.LENGTH_LONG).show();
+				}
+				progressHandler.sendEmptyMessage(0);
+				Looper.loop();
+			}
+		}.start();
+	}
+
+	/**
+	 * Override the key down event to implement: 1. keycode_back for double back
+	 * press to leave program
+	 */
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -482,29 +550,42 @@ public class WeightRecorderActivity extends Activity {
 		}
 	}
 
+	/**
+	 * update the record related ui after: 1. date changed 2. activity resumed
+	 */
 	private void updateRecordUI() {
 		updateDateButtonText();
 		updateRecordWithDate();
 		updateWeightEditText();
 	}
 
-	private void addButton2Event() {
-		Button b = (Button) findViewById(R.id.testbutton);
-		b.setOnClickListener(new Button.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (View.VISIBLE == inputLayout.getVisibility()) {
-					setInputGone();
-				} else {
-					setInputVisible();
-				}
+	/**
+	 * 1. reload data 2. refresh record utility 3. refresh weight history chart
+	 */
+	@Override
+	protected void onResume() {
+		super.onResume();
+		initialData();
+		LinearLayout layout = (LinearLayout) findViewById(R.id.mainLayout);
+		if (mChartView == null) {
+			mChartView = weightCharter.getView(this);
+			layout.addView(mChartView, new LayoutParams(
+					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		} else {
+			if (chartDataChanged) {
+				layout.removeViewAt(layout.getChildCount() - 1);
+				weightCharter.emptyView();
+				mChartView = weightCharter.getView(this);
+				layout.addView(mChartView, new LayoutParams(
+						LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+				setChartDataChanged(false);
 			}
-		});
+		}
 	}
 
 	private void setInputGone() {
-//		inputLayout.startAnimation(new MyScaler(1.0f, 1.0f, 1.0f, 0.0f, 500, inputLayout, true));
+		// inputLayout.startAnimation(new MyScaler(1.0f, 1.0f, 1.0f, 0.0f, 500,
+		// inputLayout, true));
 		inputLayout.setVisibility(View.GONE);
 	}
 
@@ -551,6 +632,14 @@ public class WeightRecorderActivity extends Activity {
 				mView.setVisibility(View.GONE);
 			}
 		}
-
 	}
+
+	public static boolean isChartDataChanged() {
+		return chartDataChanged;
+	}
+
+	public static void setChartDataChanged(boolean chartDataChanged) {
+		WeightRecorderActivity.chartDataChanged = chartDataChanged;
+	}
+
 }

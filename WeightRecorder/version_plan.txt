@@ -1,0 +1,28 @@
+version plan:
+
+version 1: basic features:
+1. weight record
+2. weight chart
+3. weight history
+4. personal information preference
+
+version 2: data security:
+1. data backup
+
+version 3: advanced features:
+1. weight statistic (text based)
+2. flip within char, history and statistic
+3. put record to new activity page and start by menu on each screen
+
+version 4: advanced features:
+1. custom scale view to record weight
+
+version 5: data mobility:
+1. implement data synchronize anywhere with single account
+
+ideas:
+1. body curve: draw the body curve with specified BWH (bust, waist, hips)
+2. photo play: fit photos of different period into same coordinate system, and play the sequentially
+3. diet log
+4. sporting log
+5. head calculator

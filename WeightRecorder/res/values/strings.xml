@@ -26,5 +26,6 @@
     <string name="mainListTitleChange">变化</string>
     <string name="mainListTitleWeight">体重</string>
     <string name="mainEditTextMainInputHint">请输入体重</string>
+    <string name="backupUrl">http://i.cz029.com:7674/wrbak/bak</string>
 
 </resources>

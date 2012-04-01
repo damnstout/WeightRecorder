@@ -117,6 +117,11 @@ public class Record {
 	public double getWeight() {
 		return weight;
 	}
+	
+	public double getRoundedWeight() {
+		String str = String.format("%.1f", weight);
+		return Double.parseDouble(str);
+	}
 
 	public String getWeightStr() {
 		return String.format("%.1f", weight);

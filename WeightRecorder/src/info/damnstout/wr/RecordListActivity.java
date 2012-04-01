@@ -90,6 +90,7 @@ public class RecordListActivity extends ListActivity {
 						RecordDao.getInstance().delete(editingDate);
 						data.remove(editingPosition);
 						recordListAdapter.notifyDataSetChanged();
+						WeightRecorderActivity.setChartDataChanged(true);
 					}
 				})
 				.setNegativeButton("È¡Ïû", new DialogInterface.OnClickListener() {
