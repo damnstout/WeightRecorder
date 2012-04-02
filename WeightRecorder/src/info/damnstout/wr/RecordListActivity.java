@@ -151,13 +151,20 @@ public class RecordListActivity extends ListActivity {
 			Double changeValue = (Double) data.get(position).get("change");
 			holder.change.setText(String.format("%.1f",
 					changeValue.doubleValue()));
-			if (0 > changeValue) {
+			if (isZero(changeValue)) {
+				holder.change.setTextColor(Color.LTGRAY);
+			} else if (0 > changeValue) {
 				holder.change.setTextColor(Color.GREEN);
 			} else if (0 < changeValue) {
 				holder.change.setTextColor(Color.RED);
 			}
 			holder.weight.setText(data.get(position).get("weight").toString());
 			return convertView;
+		}
+		
+		private boolean isZero(Double d) {
+			String s = String.format("%.1f", d.doubleValue());
+			return "0.0".equals(s);
 		}
 
 	}

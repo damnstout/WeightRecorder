@@ -50,9 +50,13 @@ public class Backuper {
 			out.print(makeHttpBakParams(context));
 			out.flush();
 			DataInputStream bin = new DataInputStream(conn.getInputStream());
-			byte[] bytes = new byte[bin.available()];
+			int responseLen = bin.available() > 0 ? bin.available() : 512;
+			byte[] bytes = new byte[responseLen];
+			for (int i = 0; i < responseLen; i++) {
+				bytes[i] = 0;
+			}
 			bin.read(bytes);
-			String serverMsg = new String(bytes);
+			String serverMsg = new String(bytes).trim();
 			out.close();
 			bin.close();
 			conn.disconnect();
