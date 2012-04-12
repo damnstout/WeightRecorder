@@ -1,21 +1,23 @@
 version plan:
 
-version 1: basic features:
+version 1: basic features:  -- done
 1. weight record
 2. weight chart
 3. weight history
 4. personal information preference
 
-version 2: data security:
+version 2: data security:  -- done
 1. data backup
 
 version 3: advanced features:
 1. weight statistic (text based)
-2. flip within char, history and statistic
+2. flip within chart, history and statistic
 3. put record to new activity page and start by menu on each screen
+4. refactor code
 
 version 4: advanced features:
 1. custom scale view to record weight
+2. walk counter
 
 version 5: data mobility:
 1. implement data synchronize anywhere with single account
@@ -25,4 +27,4 @@ ideas:
 2. photo play: fit photos of different period into same coordinate system, and play the sequentially
 3. diet log
 4. sporting log
-5. head calculator
+5. heat calculator
