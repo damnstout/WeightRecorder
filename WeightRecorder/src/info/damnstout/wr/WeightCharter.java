@@ -38,9 +38,10 @@ public class WeightCharter {
 	private long xMin = System.currentTimeMillis();
 	private GraphicalView view = null;
 	private XYMultipleSeriesRenderer renderer;
-	
-	private static SimpleDateFormat dateFormatter = new SimpleDateFormat("MM.dd");
-	
+
+	private static SimpleDateFormat dateFormatter = new SimpleDateFormat(
+			"MM.dd");
+
 	public void emptyView() {
 		view = null;
 	}
@@ -99,7 +100,8 @@ public class WeightCharter {
 			Record r = records.get(i);
 			dateArray[dataLen - i - 1] = Record.parseDateString(r.getDate());
 			valueArray[dataLen - i - 1] = r.getRoundedWeight();
-			dateDoubleArray[dataLen - i - 1] = formatDateToDouble(dateArray[dataLen - i - 1]);
+			dateDoubleArray[dataLen - i - 1] = formatDateToDouble(dateArray[dataLen
+					- i - 1]);
 			if (yMax < r.getRoundedWeight()) {
 				yMax = r.getRoundedWeight();
 			}
@@ -115,26 +117,28 @@ public class WeightCharter {
 			}
 		}
 		Profile p = ProfileDao.getInstance().getDBProfile();
-		if (yMax < p.getGoal()) {
-			yMax = p.getGoal();
-		}
-		if (yMin > p.getGoal()) {
-			yMin = p.getGoal();
+		if (null != p) {
+			if (yMax < p.getGoal()) {
+				yMax = p.getGoal();
+			}
+			if (yMin > p.getGoal()) {
+				yMin = p.getGoal();
+			}
 		}
 		dates.clear();
 		dates.add(dateArray);
 		values.clear();
 		values.add(valueArray);
 	}
-	
+
 	private double formatDateToDouble(Date d) {
 		return Double.parseDouble(dateFormatter.format(d));
 	}
 
 	public void reDraw() {
 		refreshData();
-//		setChartSettings(renderer, "", "日期", "体重", 0.75, 12.25, 95, 106.1,
-//				Color.GRAY, Color.LTGRAY);
+		// setChartSettings(renderer, "", "日期", "体重", 0.75, 12.25, 95, 106.1,
+		// Color.GRAY, Color.LTGRAY);
 		view.repaint();
 	}
 
